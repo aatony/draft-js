@@ -208,12 +208,6 @@ exports.flow = function flow() {
 exports.dist = gulp.series(exports.modules, exports.css, function outputDist() {
   return gulp
     .src('./lib/Draft.js')
-    .pipe(
-      buildDist({
-        debug: true,
-        output: 'Draft.js',
-      }),
-    )
     .pipe(derequire())
     .pipe(
       gulpif('*.js', header(COPYRIGHT_HEADER, {version: packageData.version})),
@@ -226,21 +220,10 @@ exports.dist_min = gulp.series(exports.modules, function outputDistMin() {
   return gulp
     .src('./lib/Draft.js')
     .pipe(
-      buildDist({
-        debug: false,
-        output: 'Draft.min.js',
-      }),
-    )
-    .pipe(
       gulpif('*.js', header(COPYRIGHT_HEADER, {version: packageData.version})),
     )
     .pipe(gulp.dest(paths.dist));
 });
-
-// Checks for "wrong" dependencies (file://, for example).
-exports.check_dependencies = function check_dependencies() {
-  return gulp.src('package.json').pipe(gulpCheckDependencies());
-};
 
 // Watches to build modules
 exports.watch = function watch() {
@@ -254,7 +237,6 @@ exports.dev = function dev() {
 
 // Builds everything
 exports.default = gulp.series(
-  exports.check_dependencies,
   exports.clean,
   gulp.parallel(exports.modules, exports.flow),
   gulp.parallel(exports.dist, exports.dist_min),
